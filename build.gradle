@@ -1,0 +1,13 @@
+apply plugin: 'application'
+
+mainClassName = "dbclient.DBConnector"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    testCompile 'junit:junit:4.12'
+    testCompile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.4'
+}
