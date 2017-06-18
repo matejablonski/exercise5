@@ -19,6 +19,7 @@ public class DBConnector {
       createTableFaculty(con);
       createTableClass(con);
       createTableEnrollment(con);
+      queries(con);
     } catch (SQLException e) {
       e.printStackTrace();
     } finally {
@@ -57,7 +58,6 @@ public class DBConnector {
 
   private static void createTableStudent(Connection con) throws SQLException {
     PreparedStatement ps = null;
-    ResultSet myRs = null;
 
     String createTableSQL = "CREATE TABLE Student (" + "pkey INTEGER NOT NULL,"
         + "name VARCHAR(50) NOT NULL," + "sex VARCHAR(6) NOT NULL," + "age INTEGER NOT NULL,"
@@ -97,29 +97,12 @@ public class DBConnector {
     ps.setInt(5, 3);
     ps.execute();
 
-
-    ps = con.prepareStatement("SELECT * FROM Student");
-    myRs = ps.executeQuery();
-
-    while (myRs.next()) {
-      int pkey = myRs.getInt("pKey");
-      String name = myRs.getString("name");
-      String sex = myRs.getString("sex");
-      int age = myRs.getInt("age");
-      int level = myRs.getInt("level");
-
-      System.out.printf("%d, %s, %s, %d, %d\n", pkey, name, sex, age, level);
-    }
-
     if (ps != null)
       ps.close();
-    if (myRs != null)
-      myRs.close();
   }
 
   private static void createTableFaculty(Connection con) throws SQLException {
     PreparedStatement ps = null;
-    ResultSet myRs = null;
 
     String createTableSQL = "CREATE TABLE Faculty (" + "pkey INTEGER NOT NULL,"
         + "name VARCHAR(50) NOT NULL," + "PRIMARY KEY (pkey));";
@@ -145,26 +128,12 @@ public class DBConnector {
     ps.setString(2, "Languages");
     ps.execute();
 
-    ps = con.prepareStatement("SELECT * FROM Faculty");
-    myRs = ps.executeQuery();
-
-    System.out.println();
-    while (myRs.next()) {
-      int pkey = myRs.getInt("pKey");
-      String name = myRs.getString("name");
-
-      System.out.printf("%d, %s,\n", pkey, name);
-    }
-
     if (ps != null)
       ps.close();
-    if (myRs != null)
-      myRs.close();
   }
 
   private static void createTableClass(Connection con) throws SQLException {
     PreparedStatement ps = null;
-    ResultSet myRs = null;
 
     String createTableSQL = "CREATE TABLE Class (" + "pkey INTEGER NOT NULL,"
         + "name VARCHAR(50) NOT NULL," + "fkey_faculty INTEGER NOT NULL," + "PRIMARY KEY (pkey),"
@@ -200,27 +169,12 @@ public class DBConnector {
     ps.setInt(3, 101);
     ps.execute();
 
-    ps = con.prepareStatement("SELECT * FROM Class");
-    myRs = ps.executeQuery();
-
-    System.out.println();
-    while (myRs.next()) {
-      int pkey = myRs.getInt("pkey");
-      String name = myRs.getString("name");
-      int fkey_faculty = myRs.getInt("fkey_faculty");
-
-      System.out.printf("%d, %s, %d\n", pkey, name, fkey_faculty);
-    }
-
     if (ps != null)
       ps.close();
-    if (myRs != null)
-      myRs.close();
   }
 
   private static void createTableEnrollment(Connection con) throws SQLException {
     PreparedStatement ps = null;
-    ResultSet myRs = null;
 
     String createTableSQL = "CREATE TABLE Enrollment (" + "pkey INTEGER NOT NULL,"
         + "fkey_student INTEGER NOT NULL," + "fkey_class INTEGER NOT NULL,"
@@ -277,15 +231,51 @@ public class DBConnector {
     ps.setInt(3, 1003);
     ps.execute();
 
-    ps = con.prepareStatement("SELECT * FROM Enrollment");
+    if (ps != null)
+      ps.close();
+  }
+
+  private static void queries(Connection con) throws SQLException {
+    PreparedStatement ps = null;
+    ResultSet myRs = null;
+
+    String query = "SELECT pkey, name FROM Student;";
+    ps = con.prepareStatement(query);
     myRs = ps.executeQuery();
 
-    System.out.println();
+    System.out.println("Wynik zapytania 1:");
     while (myRs.next()) {
-      int fkey_student = myRs.getInt("fkey_student");
-      int fkey_class = myRs.getInt("fkey_class");
+      int pkey = myRs.getInt("pkey");
+      String name = myRs.getString("name");
 
-      System.out.printf("%d, %d\n", fkey_student, fkey_class);
+      System.out.printf("pkey = " + pkey + ", name = " + name + "\n");
+    }
+
+    query = "SELECT s.pkey, s.name " + "FROM Student AS s, Class AS c, Enrollment AS e "
+        + "WHERE s.pkey = e.fkey_student AND c.pkey = e.fkey_class AND c.name = 'Existentialism in 20th century' "
+        + "AND s.sex = 'famale';";
+    ps = con.prepareStatement(query);
+    myRs = ps.executeQuery();
+
+    System.out.println("\nWynik zapytania 3:");
+    while (myRs.next()) {
+      int pkey = myRs.getInt("pkey");
+      String name = myRs.getString("name");
+
+      System.out.printf("pkey = " + pkey + ", name = " + name + "\n");
+    }
+
+    query = "SELECT s.age " + "FROM Student AS s, Class AS c, Enrollment AS e "
+        + "WHERE s.pkey = e.fkey_student AND c.pkey = e.fkey_class AND c.name = 'Introduction to labour law'"
+        + "ORDER BY s.age DESC LIMIT 1;";
+    ps = con.prepareStatement(query);
+    myRs = ps.executeQuery();
+
+    System.out.println("\nWynik zapytania 5:");
+    while (myRs.next()) {
+      int age = myRs.getInt("age");
+
+      System.out.printf("age = " + age + "\n");
     }
 
     if (ps != null)
