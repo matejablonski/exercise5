@@ -251,6 +251,19 @@ public class DBConnector {
       System.out.printf("pkey = " + pkey + ", name = " + name + "\n");
     }
 
+    query = "SELECT DISTINCT s.pkey, s.name FROM Student AS s, Enrollment AS e "
+        + "WHERE NOT EXISTS (SELECT e.fkey_student FROM Enrollment AS e WHERE s.pkey = e.fkey_student);";
+    ps = con.prepareStatement(query);
+    myRs = ps.executeQuery();
+
+    System.out.println("\nWynik zapytania 2:");
+    while (myRs.next()) {
+      int pkey = myRs.getInt("pkey");
+      String name = myRs.getString("name");
+
+      System.out.printf("pkey = " + pkey + ", name = " + name + "\n");
+    }
+
     query = "SELECT s.pkey, s.name " + "FROM Student AS s, Class AS c, Enrollment AS e "
         + "WHERE s.pkey = e.fkey_student AND c.pkey = e.fkey_class AND c.name = 'Existentialism in 20th century' "
         + "AND s.sex = 'famale';";
@@ -277,6 +290,7 @@ public class DBConnector {
 
       System.out.printf("age = " + age + "\n");
     }
+
 
     if (ps != null)
       ps.close();
